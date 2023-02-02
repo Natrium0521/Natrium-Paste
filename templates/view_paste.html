@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #f5f0f7;height: 100%;">
+
+<head>
+    <title>Natrium Paste</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='editormd/css/editormd.css') }}" />
+    <script src="{{ url_for('static',filename='js/axios.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/md5.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='editormd/editormd.js') }}"></script>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .tohomepage {
+            color: darkslateblue;
+            text-decoration: none;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .button {
+            color: white;
+            background-color: darkslateblue;
+            border-radius: 3px;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 24px;
+            padding: 4px;
+        }
+        
+        .infoline {
+            color: #140c34;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 20px;
+            white-space: nowrap;
+        }
+    </style>
+    {% if is_login and is_author %}
+    <style>
+        .pswcheckbox {
+            appearance: none;
+            float: left;
+            height: 32px;
+            -webkit-appearance: none;
+            outline: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid gray;
+            text-align: center;
+            line-height: 18px;
+            border-radius: 4px;
+            position: absolute;
+            top: 50%;
+            margin-top: -9px;
+        }
+        
+        .pswcheckbox:after {
+            content: '\2714';
+            color: transparent;
+        }
+        
+        .pswcheckbox:checked::after {
+            color: darkslateblue;
+        }
+        
+        .info {
+            color: #140c34;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 20px;
+            white-space: nowrap;
+            float: left;
+            height: 32px;
+            line-height: 32px;
+            padding-right: 5px;
+        }
+        
+        select::-ms-expand {
+            display: none;
+        }
+        
+        select {
+            border: solid 1px #333;
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            border-radius: 4px;
+            height: 18px;
+            width: 70px;
+            position: absolute;
+            top: 50%;
+            margin-top: -9px;
+            padding-left: 3px;
+        }
+        
+        .errmsg {
+            color: red;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+            font-weight: lighter;
+            text-align: right;
+            line-height: 40px;
+            width: 200px;
+            height: 20px;
+            padding-right: 10px;
+        }
+        
+        .captchainput {
+            font-size: 16px;
+            font-family: monospace;
+            border: 1px solid darkslateblue;
+            border-radius: 3px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            width: 90px;
+            height: 32px;
+            margin-top: 4px;
+            margin-right: 8px;
+            margin-left: 8px;
+        }
+        
+        .captchainput:focus {
+            border-color: rgb(69, 57, 146);
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(69, 57, 146, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(69, 57, 146, .6)
+        }
+        
+        .bg {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            background: rgb(0, 0, 0, .4);
+            z-index: 9998;
+            display: none;
+        }
+        
+        .saved {
+            width: 600px;
+            height: 200px;
+            border-radius: 5px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            background: #fff;
+            display: none;
+            border-color: rgb(69, 57, 146);
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(0, 0, 0, 0.6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(0, 0, 0, 0.6)
+        }
+        
+        .linkinput {
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+            border: 1px solid darkslateblue;
+            border-radius: 3px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            width: 316px;
+            height: 32px;
+            margin-top: -16px;
+            margin-right: 8px;
+            margin-left: 8px;
+            padding-left: 8px;
+            position: absolute;
+            right: 15%;
+        }
+        
+        .linkinput:focus {
+            border-color: rgb(69, 57, 146);
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(69, 57, 146, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(69, 57, 146, .6)
+        }
+        
+        .linktag {
+            color: rgb(16, 14, 32);
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 24px;
+            width: 300px;
+            height: 32px;
+            line-height: 32px;
+            position: absolute;
+            left: 10%;
+            margin-top: -16px;
+        }
+        
+        .copybtn {
+            background-image: url("/static/img/copy.png");
+            background-size: cover;
+            width: 28px;
+            height: 28px;
+            position: absolute;
+            right: 10%;
+            margin-top: -14px;
+        }
+    </style>
+    {% endif %} {% if not is_login %}
+    <style>
+        .bg {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            background: rgb(0, 0, 0, .4);
+            z-index: 9998;
+            display: none;
+        }
+        
+        .login {
+            width: 600px;
+            height: 360px;
+            border-radius: 5px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            background: #fff;
+            display: none;
+            border-color: rgb(69, 57, 146);
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(0, 0, 0, 0.6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(0, 0, 0, 0.6)
+        }
+        
+        .logintitle {
+            color: rgb(54, 46, 110);
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 32px;
+            font-weight: bold;
+            width: 80px;
+            height: 32px;
+            position: absolute;
+            left: 50%;
+            top: 10px;
+            margin-left: -40px;
+        }
+        
+        .logintag {
+            color: rgb(16, 14, 32);
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 24px;
+            width: 300px;
+            height: 32px;
+            line-height: 32px;
+            position: absolute;
+            left: 40%;
+            top: 10px;
+            margin-left: -100px;
+        }
+        
+        .loginput {
+            font-size: 16px;
+            font-family: monospace;
+            border: 1px solid darkslateblue;
+            border-radius: 3px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            width: 180px;
+            height: 32px;
+            position: absolute;
+            left: 50%;
+            margin-left: -20px;
+        }
+        
+        .loginput:focus {
+            border-color: rgb(69, 57, 146);
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(69, 57, 146, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(69, 57, 146, .6)
+        }
+        
+        .regbutton {
+            color: white;
+            background-color: darkslateblue;
+            border-radius: 3px;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 24px;
+            text-align: center;
+            padding: 4px;
+            width: 180px;
+            position: absolute;
+            top: 75%;
+            left: 50%;
+            margin-left: -90px;
+        }
+        
+        .errmsg {
+            color: red;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: lighter;
+            text-align: center;
+            width: 200px;
+            position: absolute;
+            left: 50%;
+            margin-left: -100px;
+            top: 90%;
+        }
+    </style>
+    {% endif %}
+</head>
+
+<body style="height: 100%;">
+    <div style="width: 80%;margin-left: 10%;height: 100%;">
+        <div style="height: 140px;">
+            <div style="padding-top: 5px;height: 45px;">
+                <a href="/" class="tohomepage">
+                    <img src="{{ url_for('static', filename='img/favicon.ico') }}" height="32" width="32" style="float: left;">
+                    <p style="float: left;margin-left: 5px;">Natrium Paste</p>
+                </a>
+                {% if is_login %}
+                <p class="button" style="float: right;" id="logoutbutton">Logout: {{ username }}</p>
+                {% else %}
+                <p class="button" style="float: right;" id="loginbutton">Login</p>
+                {% endif %}
+            </div>
+            <div style="margin-left: 50px;">
+                <p class="infoline">Author: {{ author }}</p>
+                <p class="infoline">
+                    Created at: {{ create_time }} {% if edit_time %} &nbsp;&nbsp;&nbsp;Edited at: {{ edit_time }} {% endif %}
+                </p>
+                {% if expire_time %}
+                <p class="infoline">Will be expired at: {{ expire_time }}</p>
+                {% endif %}
+            </div>
+        </div>
+        <div style="height: 80%;min-height: 500px;">
+            <form name="mdEditorForm" action='/save' method='post' style="height: 100%;">
+                <div id="paste-content">
+                    <textarea name="content" id="content" style="display:none;">{{ content }}</textarea>
+                </div>
+            </form>
+        </div>
+        <div style="height: 5%;min-height: 40px;">
+            <div style="padding-top: 5px;">
+                <p class="button" style="float: left;margin-right: 30px; width:72px;text-align: center;" id="copybutton">Copy</p>
+                {% if is_login and is_author %}
+                <div style="float: left;height: 32px;margin-top: 4px;position: relative;">
+                    <p class="info">Password:</p>
+                    <input type="checkbox" class="pswcheckbox" id="passwordcheckbox">
+                </div>
+                <div style="float: left;height: 32px;margin-top: 4px;position: relative;margin-left: 30px;">
+                    <p class="info">Expiration:</p>
+                    <select id="expiretimebox">
+                        <option value="-2" title="don't change">Default</option>
+                        <option value="-1">None</option>
+                        <option value="3600" title="from now">1 Hour</option>
+                        <option value="86400" title="from now">1 Day</option>
+                        <option value="259200" title="from now">3 Days</option>
+                        <option value="604800" title="from now">1 Week</option>
+                        <option value="2419200" title="from now">4 Weeks</option>
+                    </select>
+                </div>
+                <p class="button" id="deletebutton" style="float: right;margin-left: 5px;color: darkslateblue;background-color: #ffffff00;border: solid 2px;padding: 2px;margin-top: 3px;text-align: center;width: 70px;">
+                    Delete</p>
+                <p class="button" style="float: right;margin-top: 3px;" id="savebutton">&nbsp;Save&nbsp;</p>
+                <input class="captchainput" style="float: right;text-align: center;" id="captchabox">
+                <img id="captcha" height="40px" width="96px" style="float: right;">
+                <p class="errmsg" style="float: right;"></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% if not is_login %}
+    <div class="login">
+        <p class="logintitle">Login</p>
+        <p class="logintag" style="top:80px">Username:</p>
+        <input class="loginput" style="top:80px;padding-left: 4px" id="usernamebox">
+        <p class="logintag" style="top:140px">Password:</p>
+        <input class="loginput" style="top:140px;padding-left: 4px" id="passwordbox" type="password">
+        <p class="logintag" style="top:200px">Captcha:</p>
+        <img id="captcha" height="40px" width="96px" style="position:absolute;top:197px;left:45%;margin-left:-20px;">
+        <input class="loginput" style="top:200px;width:90px;margin-left: 70px;text-align: center;" id="captchabox">
+        <p class="regbutton" id="logbutton">Login/Register</p>
+        <p class="errmsg"></p>
+    </div>
+    <div class="bg"></div>
+    {% endif %} {% if is_login and is_author %}
+    <div class="saved">
+        <p class="linktag ph" style="top: 25%;">Password:</p>
+        <p class="linktag" style="top: 50%;">Link:</p>
+        <p class="linktag ph" style="top: 75%;">Direct:</p>
+        <input class="linkinput ph" style="top: 25%;" id="spsw">
+        <input class="linkinput" style="top: 50%;" id="slnk">
+        <input class="linkinput ph" style="top: 75%;" id="sdir">
+        <div class="copybtn ph" style="top: 25%;" id="cpspsw"></div>
+        <div class="copybtn" style="top: 50%;" id="cpslnk"></div>
+        <div class="copybtn ph" style="top: 75%;" id="cpsdir"></div>
+    </div>
+    <div class="bg"></div>
+    {% endif %}
+</body>
+
+</html>
+
+<script type="text/javascript">
+    var pasteEditor, iswatch = true;
+    $(function() {
+        pasteEditor = editormd("paste-content", {
+            width: "100%",
+            height: "100%",
+            tex: true,
+            emoji: true,
+            syncScrolling: "single",
+            path: "{{ url_for('static',filename='editormd/lib/') }}",
+            // 解决全屏再退出后编辑器宽度不变的问题
+            onfullscreenExit: function() {
+                document.getElementById("paste-content").style.width = "100%"
+                if (iswatch)
+                    pasteEditor.watch()
+                else
+                    pasteEditor.unwatch()
+            },
+            onwatch: function() {
+                iswatch = true
+            },
+            onunwatch: function() {
+                iswatch = false
+            }
+        });
+    });
+</script>
+<script>
+    var cpybtn = document.getElementById("copybutton");
+    cpybtn.addEventListener("click", function() {
+        copyText(document.getElementById("content").value);
+    })
+    cpybtn.addEventListener("mouseout", function() {
+        cpybtn.textContent = "Copy";
+    })
+
+    function copyText(text) {
+        var element = createElement(text);
+        element.select();
+        document.execCommand('copy');
+        element.remove();
+        cpybtn.textContent = "Copied";
+    }
+
+    function createElement(text) {
+        var isRTL = document.documentElement.getAttribute('dir') === 'rtl';
+        var element = document.createElement('textarea');
+        element.style.fontSize = '12pt';
+        element.style.border = '0';
+        element.style.padding = '0';
+        element.style.margin = '0';
+        element.style.position = 'absolute';
+        element.style[isRTL ? 'right' : 'left'] = '-9999px';
+        let yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        element.style.top = `${yPosition}px`;
+        element.setAttribute('readonly', '');
+        element.value = text;
+        document.body.appendChild(element);
+        return element;
+    }
+</script>
+{% if is_login and is_author %}
+<script>
+    window.onload = getcaptcha();
+    var captcha = document.getElementById("captcha");
+    var captchabox = document.getElementById("captchabox");
+    var savebtn = document.getElementById("savebutton");
+    var delbtn = document.getElementById("deletebutton");
+    var expiretimebox = document.getElementById("expiretimebox");
+    var pswcheckbox = document.getElementById("passwordcheckbox")
+    var errinfo = document.querySelector(".errmsg");
+    var saved = document.querySelector(".saved")
+    var bg = document.querySelector(".bg")
+    captcha.addEventListener("click", function() {
+        getcaptcha();
+    })
+
+    function getcaptcha() {
+        axios.get("/api/captcha", {
+            responseType: "blob"
+        }).then(function(res) {
+            captcha.md5 = res.headers['content-disposition'].split(".")[0].split("=")[1];
+            captcha.src = URL.createObjectURL(res.data);
+        })
+    }
+    savebtn.addEventListener("click", function() {
+        dosubmit(false);
+    })
+    delbtn.addEventListener("click", function() {
+        if (delbtn.textContent == "Sure?") {
+            dosubmit(true);
+        } else {
+            delbtn.textContent = "Sure?"
+        }
+    })
+    delbtn.addEventListener("mouseout", function() {
+        delbtn.textContent = "Delete"
+    })
+    $("#captchabox").bind("keypress", function(event) {
+        if (event.keyCode == 13) {
+            dosubmit(false);
+        }
+    })
+
+    function dosubmit(isdelete) {
+        var pid = window.location.pathname.split("/").reverse()[0];
+        var expire_time = Math.ceil(Date.now() / 1000);
+        if (expiretimebox.value == '-2') {
+            expire_time = "";
+        } else if (expiretimebox.value == '-1') {
+            expire_time = -1;
+        } else {
+            expire_time += parseInt(expiretimebox.value);
+        }
+        if (isdelete) {
+            expire_time = 0;
+        }
+        var psw = "";
+        if (pswcheckbox.checked == false) {
+            psw = "no";
+        }
+        var content = pasteEditor.getValue();
+        if (captchabox.value) {
+            if (isdelete) {
+                axios.post("/api/save_paste", {
+                    "pid": pid,
+                    "expire_time": expire_time,
+                    "psw": psw,
+                    "content": content,
+                    "captcha": captchabox.value,
+                    "md5": captcha.md5
+                }).then(function(res) {
+                    if (res.data.code) {
+                        errinfo.textContent = res.data.code + " " + res.data.msg;
+                        getcaptcha();
+                        captchabox.value = "";
+                        captchabox.focus();
+                    } else {
+                        location.reload();
+                    }
+                })
+            } else {
+                if (content) {
+                    axios.post("/api/save_paste", {
+                        "pid": pid,
+                        "expire_time": expire_time,
+                        "psw": psw,
+                        "content": content,
+                        "captcha": captchabox.value,
+                        "md5": captcha.md5
+                    }).then(function(res) {
+                        if (res.data.code) {
+                            errinfo.textContent = res.data.code + " " + res.data.msg;
+                            getcaptcha();
+                            captchabox.value = "";
+                            captchabox.focus();
+                        } else {
+                            errinfo.textContent = ""
+                            bg.style.display = 'block';
+                            saved.style.display = 'block';
+                            if (res.data.psw == "no") {
+                                document.querySelectorAll(".ph").forEach(function(ele) {
+                                    ele.style.display = "none";
+                                })
+                            }
+                            document.getElementById("spsw").value = res.data.psw;
+                            document.getElementById("slnk").value = window.location.origin + "/pid/" + res.data.pid;
+                            document.getElementById("sdir").value = window.location.origin + "/pid/" + res.data.pid + "?psw=" + res.data.psw;
+                        }
+                    })
+                }
+            }
+        } else {
+            errinfo.textContent = "10017 missing captcha"
+        }
+    }
+    bg.addEventListener("click", function() {
+        self.location = document.getElementById("sdir").value;
+    })
+</script>
+<script>
+    document.getElementById("cpspsw").addEventListener("click", function() {
+        document.getElementById("spsw").select();
+        document.execCommand('copy');
+        document.getElementById("cpspsw").style.backgroundImage = "url(/static/img/done.png)";
+    })
+    document.getElementById("cpslnk").addEventListener("click", function() {
+        document.getElementById("slnk").select();
+        document.execCommand('copy');
+        document.getElementById("cpslnk").style.backgroundImage = "url(/static/img/done.png)";
+    })
+    document.getElementById("cpsdir").addEventListener("click", function() {
+        document.getElementById("sdir").select();
+        document.execCommand('copy');
+        document.getElementById("cpsdir").style.backgroundImage = "url(/static/img/done.png)";
+    })
+    document.getElementById("cpspsw").addEventListener("mouseout", function() {
+        document.getElementById("cpspsw").style.backgroundImage = "url(/static/img/copy.png)";
+    })
+    document.getElementById("cpslnk").addEventListener("mouseout", function() {
+        document.getElementById("cpslnk").style.backgroundImage = "url(/static/img/copy.png)";
+    })
+    document.getElementById("cpsdir").addEventListener("mouseout", function() {
+        document.getElementById("cpsdir").style.backgroundImage = "url(/static/img/copy.png)";
+    })
+</script>
+{% if is_pswneed %}
+<script>
+    document.getElementById("passwordcheckbox").checked = true;
+</script>
+{% endif %} {% endif %} {% if not is_login %}
+<script>
+    var loginbtn = document.getElementById("loginbutton");
+    var bg = document.querySelector(".bg");
+    var loginui = document.querySelector(".login");
+    var captcha = document.getElementById("captcha");
+    var submitbtn = document.getElementById("logbutton");
+    var errinfo = document.querySelector(".errmsg");
+    loginbtn.addEventListener("click", function() {
+        getcaptcha();
+        bg.style.display = 'block';
+        loginui.style.display = 'block';
+    })
+    bg.addEventListener("click", function() {
+        bg.style.display = 'none';
+        loginui.style.display = 'none';
+    })
+    captcha.addEventListener("click", function() {
+        getcaptcha();
+    })
+
+    function getcaptcha() {
+        axios.get("/api/captcha", {
+            responseType: "blob"
+        }).then(function(res) {
+            captcha.md5 = res.headers['content-disposition'].split(".")[0].split("=")[1];
+            captcha.src = URL.createObjectURL(res.data);
+        })
+    }
+    submitbtn.addEventListener("click", function() {
+        dologinortrgister();
+    })
+    $(".loginput").bind("keypress", function(event) {
+        if (event.keyCode == 13) {
+            dologinortrgister();
+        }
+    })
+    var usernamebox = document.getElementById("usernamebox");
+    var passwordbox = document.getElementById("passwordbox");
+    var captchabox = document.getElementById("captchabox");
+
+    function dologinortrgister() {
+        if (usernamebox.value && passwordbox.value && captchabox.value) {
+            axios.get("/api/check_account/" + usernamebox.value).then(function(r) {
+                axios.post("/api/" + r.data.op, {
+                    "username": usernamebox.value,
+                    "password": md5(usernamebox.value.substring(usernamebox.value.length - 5) + passwordbox.value),
+                    "captcha": captchabox.value,
+                    "md5": captcha.md5
+                }).then(function(res) {
+                    if (res.data.code) {
+                        errinfo.textContent = res.data.code + " " + res.data.msg;
+                        getcaptcha();
+                        captchabox.value = "";
+                        captchabox.focus();
+                    } else {
+                        location.reload();
+                    }
+                })
+            })
+        }
+    }
+</script>
+{% else %}
+<script>
+    var logoutbtn = document.getElementById("logoutbutton");
+    logoutbtn.addEventListener("click", function() {
+        axios.get("/api/logout").then(function(res) {
+            location.reload();
+        });
+    })
+</script>
+{% endif %}
