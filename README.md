@@ -11,3 +11,4 @@ git clone
 cd Natrium-Paste
 python app.py
 ```
+Port can be changed in app.py.
