@@ -1,5 +1,5 @@
 # Natrium-Paste
-A cloud clipboard, use Flask.
+Natrium paste is a simple cloud clipboard, use [Flask](https://github.com/pallets/flask "Flask") and [Editor.md](https://github.com/pandao/editor.md "Open source online Markdown editor.").
 
 ## Install
 ```
