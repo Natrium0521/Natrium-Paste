@@ -12,7 +12,7 @@
             margin: 0;
             padding: 0;
         }
-        
+
         .info {
             color: darkslateblue;
             font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
@@ -24,15 +24,16 @@
             margin-top: 100px;
             height: max-content;
         }
-        
+
         .tohomepage {
             color: darkslateblue;
             text-decoration: none;
             font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
             font-size: 32px;
             font-weight: bold;
+            cursor: pointer;
         }
-        
+
         .button {
             color: white;
             background-color: darkslateblue;
@@ -40,8 +41,9 @@
             font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
             font-size: 24px;
             padding: 4px;
+            cursor: pointer;
         }
-        
+
         .createbutton {
             color: white;
             background-color: darkslateblue;
@@ -57,8 +59,9 @@
             left: 50%;
             margin-left: -80px;
             top: 90%;
+            cursor: pointer;
         }
-        
+
         .bg {
             width: 100%;
             height: 100%;
@@ -68,8 +71,9 @@
             background: rgb(0, 0, 0, .4);
             z-index: 9998;
             display: none;
+            cursor: pointer;
         }
-        
+
         .login {
             width: 600px;
             height: 360px;
@@ -86,7 +90,7 @@
             -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(0, 0, 0, 0.6);
             box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(0, 0, 0, 0.6)
         }
-        
+
         .logintitle {
             color: rgb(54, 46, 110);
             font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
@@ -99,7 +103,7 @@
             top: 10px;
             margin-left: -40px;
         }
-        
+
         .logintag {
             color: rgb(16, 14, 32);
             font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
@@ -112,7 +116,7 @@
             top: 10px;
             margin-left: -100px;
         }
-        
+
         .loginput {
             font-size: 16px;
             font-family: monospace;
@@ -129,14 +133,14 @@
             left: 50%;
             margin-left: -20px;
         }
-        
+
         .loginput:focus {
             border-color: rgb(69, 57, 146);
             outline: 0;
             -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(69, 57, 146, .6);
             box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(69, 57, 146, .6)
         }
-        
+
         .regbutton {
             color: white;
             background-color: darkslateblue;
@@ -150,8 +154,9 @@
             top: 75%;
             left: 50%;
             margin-left: -90px;
+            cursor: pointer;
         }
-        
+
         .errmsg {
             color: red;
             font-family: Arial, Helvetica, sans-serif;
@@ -180,10 +185,15 @@
         {% endif %}
     </div>
     <div style="width: 80%;margin-left: 10%;min-height: 500px;position: relative;">
-        <p class="info">&nbsp;&nbsp;&nbsp;&nbsp;Natrium Paste is intended for use as a short-term exchange of pasted information between parties. All submitted data is considered public information. Submitted data is not guaranteed to be permanent, and may be removed
-            at any time.<br> &nbsp;&nbsp;&nbsp;&nbsp;Should you reasonably believe that any third-party content you access through this websites is in breach of any law, regulation or third party's rights, you should notify Natrium in writing through
+        <p class="info">&nbsp;&nbsp;&nbsp;&nbsp;Natrium Paste is intended for use as a short-term exchange of pasted
+            information between parties. All submitted data is considered public information. Submitted data is not
+            guaranteed to be permanent, and may be removed
+            at any time.<br> &nbsp;&nbsp;&nbsp;&nbsp;Should you reasonably believe that any third-party content you
+            access through this websites is in breach of any law, regulation or third party's rights, you should notify
+            Natrium in writing through
             1583803226@qq.com.
-            <br> &nbsp;&nbsp;&nbsp;&nbsp;To use Natrium Paste, login first.</p>
+            <br> &nbsp;&nbsp;&nbsp;&nbsp;To use Natrium Paste, login first.
+        </p>
         {% if is_login %}
         <a href="/new" class="createbutton">Create Paste</a> {% endif %}
     </div>
@@ -212,39 +222,39 @@
     var submitbtn = document.getElementById("logbutton");
     var errinfo = document.querySelector(".errmsg");
     if (loginbtn != null) {
-        loginbtn.addEventListener("click", function() {
+        loginbtn.addEventListener("click", function () {
             getcaptcha();
             bg.style.display = 'block';
             loginui.style.display = 'block';
         })
     }
     if (logoutbtn != null) {
-        logoutbtn.addEventListener("click", function() {
-            axios.get("/api/logout").then(function(res) {
+        logoutbtn.addEventListener("click", function () {
+            axios.get("/api/logout").then(function (res) {
                 location.reload();
             });
         })
     }
-    bg.addEventListener("click", function() {
+    bg.addEventListener("click", function () {
         bg.style.display = 'none';
         loginui.style.display = 'none';
     })
-    captcha.addEventListener("click", function() {
+    captcha.addEventListener("click", function () {
         getcaptcha();
     })
 
     function getcaptcha() {
         axios.get("/api/captcha", {
             responseType: "blob"
-        }).then(function(res) {
+        }).then(function (res) {
             captcha.md5 = res.headers['content-disposition'].split(".")[0].split("=")[1];
             captcha.src = URL.createObjectURL(res.data);
         })
     }
-    submitbtn.addEventListener("click", function() {
+    submitbtn.addEventListener("click", function () {
         dologinortrgister();
     })
-    $(".loginput").bind("keypress", function(event) {
+    $(".loginput").bind("keypress", function (event) {
         if (event.keyCode == 13) {
             dologinortrgister();
         }
@@ -255,13 +265,13 @@
 
     function dologinortrgister() {
         if (usernamebox.value && passwordbox.value && captchabox.value) {
-            axios.get("/api/check_account/" + usernamebox.value).then(function(r) {
+            axios.get("/api/check_account/" + usernamebox.value).then(function (r) {
                 axios.post("/api/" + r.data.op, {
                     "username": usernamebox.value,
                     "password": md5(usernamebox.value.substring(usernamebox.value.length - 5) + passwordbox.value),
                     "captcha": captchabox.value,
                     "md5": captcha.md5
-                }).then(function(res) {
+                }).then(function (res) {
                     if (res.data.code) {
                         errinfo.textContent = res.data.code + " " + res.data.msg;
                         getcaptcha();
